@@ -1042,6 +1042,11 @@ void QtOSGViewer::_UpdateCameraTransform(float fTimeElapsed)
             bTracking = true;
             tTrack = ptrackinglink->GetTransform()*_tTrackingLinkRelative;
             //tTrack.trans = ptrackinglink->ComputeAABB().pos;
+
+            std::string linkname = ptrackinglink->GetParent()->GetName();
+            _posgWidget->TrackNamedNode(linkname);
+        } else {
+            _posgWidget->TrackNamedNode("");
         }
         RobotBase::ManipulatorPtr ptrackingmanip=_ptrackingmanip;
         if( !!ptrackingmanip ) {

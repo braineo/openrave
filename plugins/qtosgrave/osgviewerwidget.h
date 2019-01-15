@@ -27,6 +27,7 @@
 #include <osgViewer/ViewerEventHandlers>
 #include <osg/PositionAttitudeTransform>
 #include <osgManipulator/Dragger>
+#include <osgGA/NodeTrackerManipulator>
 #include <iostream>
 
 namespace qtosgrave {
@@ -126,6 +127,8 @@ public:
     osg::Camera *GetCamera();
 
     osg::ref_ptr<osgGA::CameraManipulator> GetCameraManipulator();
+
+    void TrackNamedNode(std::string nodeName);
 
     OSGMatrixTransformPtr GetCameraHUD();
 
@@ -248,6 +251,7 @@ protected:
     osg::ref_ptr<osgViewer::View> _osgview;
     osg::ref_ptr<osgViewer::View> _osghudview;
     osg::ref_ptr<OpenRAVETrackball> _osgCameraManipulator;
+    osg::ref_ptr<osgGA::NodeTrackerManipulator> _osgNodeTrackerManipulator;
 
     osg::ref_ptr<osgText::Text> _osgHudText; ///< the HUD text in the upper left corner
     std::string _strUserText, _strSelectedItemText, _strRayInfoText; ///< the user hud text

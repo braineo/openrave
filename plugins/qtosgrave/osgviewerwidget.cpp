@@ -930,6 +930,13 @@ void QOSGViewerWidget::_SetupCamera(osg::ref_ptr<osg::Camera> camera, osg::ref_p
     _osgviewer->addView( view.get() );
     _osgviewer->addView( hudview.get() );
 
+    // for tracking nodes
+    _osgNodeTrackerManipulator = new osgGA::NodeTrackerManipulator;
+    osgGA::NodeTrackerManipulator::TrackerMode trackerMode = osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION;
+    osgGA::NodeTrackerManipulator::RotationMode rotationMode = osgGA::NodeTrackerManipulator::TRACKBALL;
+    _osgNodeTrackerManipulator->setTrackerMode(trackerMode);
+    _osgNodeTrackerManipulator->setRotationMode(rotationMode);
+
     _osgCameraManipulator = new OpenRAVETrackball(this);//osgGA::TrackballManipulator();//NodeTrackerManipulator();
     _osgCameraManipulator->setWheelZoomFactor(0.2);
     view->setCameraManipulator( _osgCameraManipulator.get() );
@@ -1452,6 +1459,27 @@ void QOSGViewerWidget::SetKeyboardModifiers(QInputEvent *event)
     if ( modifierKeys & Qt::ControlModifier ) mask |= osgGA::GUIEventAdapter::MODKEY_CTRL;
     if ( modifierKeys & Qt::AltModifier ) mask |= osgGA::GUIEventAdapter::MODKEY_ALT;
     _osgGraphicWindow->getEventQueue()->getCurrentEventState()->setModKeyMask(mask);
+}
+
+void QOSGViewerWidget::TrackNamedNode(std::string nodeName)
+{
+    FindNamedNodeVisitor fnnv(nodeName);
+    _osgSceneRoot->accept(fnnv);
+    if( !fnnv._foundNodes.empty() && nodeName != "") {
+
+        if (_osgview->getCameraManipulator() != _osgNodeTrackerManipulator) {
+            _osgview->setCameraManipulator(_osgNodeTrackerManipulator);
+        }
+
+        // track node
+        if (fnnv._foundNodes.front() != _osgNodeTrackerManipulator->getTrackNode()) {
+            _osgNodeTrackerManipulator->setTrackNode(fnnv._foundNodes.front());
+        }
+
+    } else if (_osgview->getCameraManipulator() != _osgCameraManipulator) {
+        // reset to trackball
+        _osgview->setCameraManipulator(_osgCameraManipulator);
+    }
 }
 
 
