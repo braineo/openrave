@@ -1049,7 +1049,7 @@ void QtOSGViewer::_UpdateCameraTransform(float fTimeElapsed)
             tTrack = ptrackingmanip->GetTransform();
         }
 
-        if( bTracking ) {
+        if( 0 ) { //bTracking ) {
 
             RaveVector<float> vup(0,0,1); // up vector that camera should always be oriented to
             if( !!GetEnv()->GetPhysicsEngine() ) {
@@ -1082,7 +1082,7 @@ void QtOSGViewer::_UpdateCameraTransform(float fTimeElapsed)
             // focal distance is the tracking radius. ie how far from the coord system camera shoud be
             RaveVector<float> vDestPos = tTrack.trans + ExtractAxisFromQuat(vDestQuat,2)*_focalDistance;
 
-            if(1) {
+            if(0) {
                 // PID animation
                 float pconst = 0.02;
                 float dconst = 0.2;
