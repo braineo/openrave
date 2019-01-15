@@ -1164,7 +1164,7 @@ osg::Camera *QOSGViewerWidget::GetCamera()
 
 osg::ref_ptr<osgGA::CameraManipulator> QOSGViewerWidget::GetCameraManipulator()
 {
-    return _osgCameraManipulator;
+    return _osgview->getCameraManipulator();
 }
 
 OSGMatrixTransformPtr QOSGViewerWidget::GetCameraHUD()
