@@ -220,6 +220,23 @@ protected:
     bool _found;
 };
 
+class FindNamedNodeVisitor : public osg::NodeVisitor
+{
+public:
+    FindNamedNodeVisitor(const std::string &name) :
+            osg::NodeVisitor(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN),
+            _name(name) {}
+    virtual void apply(osg::Node& node)
+    {
+        if (node.getName() == _name) {
+            _foundNodes.emplace_back(&node);
+        }
+        traverse(node);
+    }
+    std::string _name;
+    std::vector<osg::ref_ptr<osg::Node> > _foundNodes;
+};
+
 inline boost::shared_ptr<EnvironmentMutex::scoped_try_lock> LockEnvironmentWithTimeout(EnvironmentBasePtr penv, uint64_t timeout)
 {
     // try to acquire the lock
