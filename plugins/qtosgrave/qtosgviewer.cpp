@@ -1043,8 +1043,8 @@ void QtOSGViewer::_UpdateCameraTransform(float fTimeElapsed)
             tTrack = ptrackinglink->GetTransform()*_tTrackingLinkRelative;
             //tTrack.trans = ptrackinglink->ComputeAABB().pos;
 
-            std::string linkname = ptrackinglink->GetParent()->GetName();
-            _posgWidget->TrackNamedNode(linkname);
+            std::string bodyname = ptrackinglink->GetParent()->GetName();
+            _posgWidget->TrackNamedNode(str(boost::format("%s/%s")%bodyname%ptrackinglink->GetName()));
         } else {
             _posgWidget->TrackNamedNode("");
         }

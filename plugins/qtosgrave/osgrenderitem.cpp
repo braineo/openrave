@@ -258,7 +258,7 @@ void KinBodyItem::Load()
     FOREACHC(itlink, _pbody->GetLinks()) {
         KinBody::LinkPtr porlink = *itlink;
         OSGGroupPtr posglinkroot = new osg::Group();
-        posglinkroot->setName(str(boost::format("link%d")%porlink->GetIndex()));
+        posglinkroot->setName(str(boost::format("%s/%s")%_pbody->GetName()%porlink->GetName()));
 
         OSGMatrixTransformPtr posglinktrans = new osg::MatrixTransform();
         SetMatrixTransform(*posglinktrans, tbodyinv * porlink->GetTransform());
