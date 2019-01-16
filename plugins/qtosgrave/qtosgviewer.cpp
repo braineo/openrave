@@ -1025,7 +1025,7 @@ void QtOSGViewer::_UpdateCameraTransform(float fTimeElapsed)
     _posgWidget->SetViewport(width, height, GetEnv()->GetUnit().second);
 
     _Tcamera = GetRaveTransformFromMatrix(_posgWidget->GetCameraManipulator()->getMatrix());
-    osg::ref_ptr<osgGA::TrackballManipulator> ptrackball = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>(_posgWidget->GetCameraManipulator());
+    osg::ref_ptr<osgGA::OrbitManipulator> ptrackball = osg::dynamic_pointer_cast<osgGA::OrbitManipulator>(_posgWidget->GetCameraManipulator());
     if( !!ptrackball ) {
         _focalDistance = ptrackball->getDistance();
     }
@@ -1385,7 +1385,7 @@ bool QtOSGViewer::WriteCameraImage(int width, int height, const RaveTransform<fl
 
 void QtOSGViewer::_SetCameraTransform()
 {
-    osg::ref_ptr<osgGA::TrackballManipulator> ptrackball = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>(_posgWidget->GetCameraManipulator());
+    osg::ref_ptr<osgGA::OrbitManipulator> ptrackball = osg::dynamic_pointer_cast<osgGA::OrbitManipulator>(_posgWidget->GetCameraManipulator());
     if( !!ptrackball ) {
         ptrackball->setDistance(_focalDistance);
     }

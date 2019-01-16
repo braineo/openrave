@@ -911,8 +911,8 @@ void QOSGViewerWidget::Zoom(float factor)
 
         _osgview->getCamera()->setProjectionMatrixAsOrtho(-distance, distance, -distance/aspect, distance/aspect, nearplane, 10000*nearplane);
     } else {
-        _osgCameraManipulator->setDistance(_osgCameraManipulator->getDistance() / factor);
-
+        osg::ref_ptr<osgGA::OrbitManipulator> manipulator = osg::dynamic_pointer_cast<osgGA::OrbitManipulator>(GetCameraManipulator());
+        manipulator->setDistance(manipulator->getDistance() / factor);
     }
 }
 
