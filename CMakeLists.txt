@@ -472,6 +472,12 @@ else()
   set(CRLIBM_FOUND 0)
 endif()
 
+# not sure how to fix this disable double precision for now
+# Undefined symbols for architecture x86_64:
+#   "__FPU_SETCW", referenced from:
+#       _crlibm_exit in libcrlibm-native.a(crlibm_private.c.o)
+set(CRLIBM_FOUND 0)
+
 #if( MSVC )
 #  # MSVC has prepackaged assimp libraries
 #  set(ASSIMP_PATH ${CMAKE_CURRENT_SOURCE_DIR}/msvc_assimp)
