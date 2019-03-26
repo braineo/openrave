@@ -198,7 +198,8 @@ QtOSGViewer::~QtOSGViewer()
 
 void QtOSGViewer::_InitGUI(bool bCreateStatusBar, bool bCreateMenu)
 {
-    osg::ArgumentParser arguments(0, NULL);
+  // Following line casuing segfault not necessary?
+  // osg::ArgumentParser arguments(0, NULL);
 
     if( !QApplication::instance() ) {
         RAVELOG_WARN("no app instance to attach close\n");
