@@ -148,8 +148,8 @@ QtOSGViewer::QtOSGViewer(EnvironmentBasePtr penv, std::istream& sinput) : QMainW
                     "Accepts 0/1 value that decides whether to render the cross hairs");
     RegisterCommand("SetNearPlane", boost::bind(&QtOSGViewer::_SetNearPlaneCommand, this, _1, _2),
                     "Sets the near plane for rendering of the image. Useful when tweaking rendering units");
-    RegisterCommand("SetTextureCubeMap", boost::bind(&QtOSGViewer::_SetTextureCubeMap, this, _1, _2),
-                    "Sets the skybox with cubemap");
+    // RegisterCommand("SetTextureCubeMap", boost::bind(&QtOSGViewer::_SetTextureCubeMap, this, _1, _2),
+    //                 "Sets the skybox with cubemap");
     RegisterCommand("TrackLink", boost::bind(&QtOSGViewer::_TrackLinkCommand, this, _1, _2),
                     "camera tracks the link maintaining a specific relative transform: robotname, manipname, focalDistance");
     RegisterCommand("TrackManipulator", boost::bind(&QtOSGViewer::_TrackManipulatorCommand, this, _1, _2),
@@ -173,6 +173,7 @@ QtOSGViewer::QtOSGViewer(EnvironmentBasePtr penv, std::istream& sinput) : QMainW
     "Pans the camera in the direction of the screen x vector, parallel to screen plane. The argument dx is in normalized coordinates 0 < dx < 1, where 1 means canvas width.");
     RegisterCommand("PanCameraYDirection", boost::bind(&QtOSGViewer::_PanCameraYDirectionCommand, this, _1, _2),
     "Pans the camera in the direction of the screen y vector, parallel to screen plane. The argument dy is in normalized coordinates 0 < dy < 1, where 1 means canvas height.");
+
     _bLockEnvironment = true;
     _InitGUI(bCreateStatusBar, bCreateMenu);
     _bUpdateEnvironment = true;
@@ -651,7 +652,7 @@ void QtOSGViewer::_ChangeViewToXY()
     _Tcamera.rot = quatFromAxisAngle(RaveVector<float>(1,0,0), float(0));
     _Tcamera.trans.x = center.x();
     _Tcamera.trans.y = center.y();
-    _Tcamera.trans.z = center.z() + _posgWidget->GetCurrentManipulatorDistanceToFocus();
+    _Tcamera.trans.z = center.z() + _posgWidget->GetCameraDistanceToFocus();
     _SetCameraTransform();
 }
 
@@ -660,7 +661,7 @@ void QtOSGViewer::_ChangeViewToXZ()
     osg::Vec3d center = _posgWidget->GetSceneRoot()->getBound().center();
     _Tcamera.rot = quatFromAxisAngle(RaveVector<float>(1,0,0), float(M_PI/2));
     _Tcamera.trans.x = center.x();
-    _Tcamera.trans.y = center.y() - _posgWidget->GetCurrentManipulatorDistanceToFocus();
+    _Tcamera.trans.y = center.y() - _posgWidget->GetCameraDistanceToFocus();
     _Tcamera.trans.z = center.z();
     _SetCameraTransform();
 
@@ -670,7 +671,7 @@ void QtOSGViewer::_ChangeViewToYZ()
 {
     osg::Vec3d center = _posgWidget->GetSceneRoot()->getBound().center();
     _Tcamera.rot = quatMultiply(quatFromAxisAngle(RaveVector<float>(0,0,1), float(M_PI/2)), quatFromAxisAngle(RaveVector<float>(1,0,0), float(M_PI/2)));
-    _Tcamera.trans.x = center.x() + _posgWidget->GetCurrentManipulatorDistanceToFocus();
+    _Tcamera.trans.x = center.x() + _posgWidget->GetCameraDistanceToFocus();
     _Tcamera.trans.y = center.y();
     _Tcamera.trans.z = center.z();
     _SetCameraTransform();
@@ -1243,14 +1244,14 @@ bool QtOSGViewer::_MoveCameraZoomCommand(ostream& sout, istream& sinput)
     float factor = 1.0f;
     sinput >> factor;
 
-    bool isPan;
+    int isPan;
     sinput >> isPan;
 
     float panDelta = 0;
     if(isPan) {
         sinput >> panDelta;
     }
-    _PostToGUIThread(boost::bind(&QtOSGViewer::_MoveCameraZoom, this, factor, isPan, panDelta));
+    _PostToGUIThread(boost::bind(&QtOSGViewer::_MoveCameraZoom, this, factor, (bool)isPan, panDelta));
     return true;
 }
 
@@ -1426,7 +1427,7 @@ bool QtOSGViewer::_TrackLink(KinBody::LinkPtr link, const RaveTransform<float>& 
     if (infoText.size() == 0) {
         infoText = str(boost::format("%s/%s")%parentIem->GetName()%link->GetName());
     }
-    _posgWidget->TrackNode(osgNode, infoText, linkOffset, _posgWidget->GetCurrentManipulatorDistanceToFocus());
+    _posgWidget->TrackNode(osgNode.get(), infoText, linkOffset, _posgWidget->GetCameraDistanceToFocus());
     if(_cameraMoveModeButton != NULL) {
         _cameraMoveModeButton->setEnabled(false);
     }
@@ -1435,13 +1436,9 @@ bool QtOSGViewer::_TrackLink(KinBody::LinkPtr link, const RaveTransform<float>& 
 
 void QtOSGViewer::_SetCameraDistanceToFocus(float focalDistance)
 {
-    _posgWidget->SetCurrentManipulatorDistanceToFocus(focalDistance);
+    boost::mutex::scoped_lock lock(_mutexGUIFunctions);
+    _posgWidget->SetCameraDistanceToFocus(focalDistance);
     _SetCameraTransform();
-}
-
-double QtOSGViewer::_GetCameraDistanceToFocus()
-{
-    return _posgWidget->GetCurrentManipulatorDistanceToFocus();
 }
 
 RaveTransform<float> QtOSGViewer::GetCameraTransform() const
@@ -1455,7 +1452,7 @@ RaveTransform<float> QtOSGViewer::GetCameraTransform() const
 float QtOSGViewer::GetCameraDistanceToFocus() const
 {
     boost::mutex::scoped_lock lock(_mutexGUIFunctions);
-    return _posgWidget->GetCurrentManipulatorDistanceToFocus();
+    return _posgWidget->GetCameraDistanceToFocus();
 }
 
 geometry::RaveCameraIntrinsics<float> QtOSGViewer::GetCameraIntrinsics() const

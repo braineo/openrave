@@ -100,9 +100,12 @@ public:
 
     /// \brief Pans the camera in the direction of the screen y vector, parallel to screen plane. The argument dy is in normalized coordinates 0 < dy < 1, where 1 means canvas height.
     virtual void PanCameraYDirection(float dy);
+
     /// \param factor > 1.0 = zoom in. < 1.0 = zoom out
     /// \param isPan, if true, then focal distance will not change, but rather camera position will move along with focal point
+    /// \param panDelta, if true, then focal distance will not change, but rather camera position will move along with focal point
     void MoveCameraZoom(float factor, bool isPan, float panDelta);
+
     /// \brief changes current focal distance (if in perspective mode) or the current projection plane size (if in ortho mode) in order
     /// to zoom in/out towards/from focal point (if factor < 1). This function never changes de focal point position.
     void Zoom(float factor);
@@ -148,13 +151,15 @@ public:
     void StopTrackNode();
 
     osg::Camera *GetCamera();
+    bool IsInOrthoMode();
 
     osg::ref_ptr<osgGA::CameraManipulator> GetCurrentCameraManipulator();
     void SetCurrentCameraManipulator(osgGA::CameraManipulator* manipulator);
-    double GetCurrentManipulatorDistanceToFocus();
-    void SetCurrentManipulatorDistanceToFocus(double distance);
+    void SetCameraDistanceToFocus(double distance);
+    double GetCameraDistanceToFocus();
 
     void RestoreDefaultManipulator();
+    bool IsUsingDefaultCameraManipulator();
     osg::ref_ptr<osgGA::TrackballManipulator> GetDefaultCameraManipulator();
     osg::ref_ptr<osgGA::NodeTrackerManipulator> GetTrackModeManipulator();
 
@@ -234,7 +239,7 @@ protected:
     /// \brief update hud display axis from current manipulator transform
     void _UpdateHUDAxisTransform(int width, int height);
 
-    /// \brief performs a rotation of the camera over the current focal point (see GetCurrentManipulatorDistanceToFocus()).
+    /// \brief performs a rotation of the camera over the current focal point (see GetCameraDistanceToFocus()).
     /// Camera will keep looking ate the focal point after performing the rotation.
     /// \param angle in radians, -pi < angle < pi, camSpaceRotationOverDirection is the direction in camera space over which to rotate to.
     /// \param useCameraUpDirection in radians, -pi < angle < pi, camSpaceRotationOverDirection is the direction, in camera, space over which to rotate to.
@@ -320,6 +325,7 @@ protected:
     double _zNear; ///< In OSG, znear and zfar are updated by CullVisitor, which
                    ///  causing getProjectionMatrixAsXXX to return negative
                    ///  values. Therefore, we manage zNear ourselves
+    double _currentOrthoFrustumSize;
 
     void GetSwitchedButtonValue(unsigned int &button);
 };
